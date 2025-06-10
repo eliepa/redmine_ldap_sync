@@ -1,4 +1,4 @@
-class AddUsersSearchScope < ActiveRecord::Migration[4.2]
+class AddUsersSearchScope < ActiveRecord::Migration[6.0]
 
   def self.up
     all_settings = Setting.plugin_redmine_ldap_sync

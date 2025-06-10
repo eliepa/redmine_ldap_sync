@@ -29,7 +29,7 @@ namespace :redmine do
         Rake::Task["redmine:plugins:ldap_sync:test:functionals"].invoke
         Rake::Task["redmine:plugins:ldap_sync:test:integration"].invoke
 
-        if RUBY_VERSION >= '1.9.3' && Redmine::VERSION.to_s >= '2.3.0'
+        if RUBY_VERSION >= '2.0.0' && Redmine::VERSION.to_s >= '6.0.0'
           Rake::Task["redmine:plugins:ldap_sync:test:ui"].invoke
         end
       end

@@ -162,8 +162,22 @@ module LdapSettingsHelper
 
       config_dir = File.join(Redmine::Plugin.find(:redmine_ldap_sync).directory, 'config')
       default = baseable_fields.inject({}) {|h, k| h[k] = ''; h }
-      @base_settings = YAML::load_file(File.join(config_dir, 'base_settings.yml'))
-      @base_settings.each {|k,h| h.reverse_merge!(default) }
+      
+      # Ruby 3.3.0 compatibility: Use YAML.safe_load for security and compatibility
+      config_file = File.join(config_dir, 'base_settings.yml')
+      begin
+        if RUBY_VERSION >= '3.1'
+          @base_settings = YAML.safe_load_file(config_file, permitted_classes: [Symbol], aliases: true) || {}
+        else
+          @base_settings = YAML::load_file(config_file) || {}
+        end
+      rescue StandardError => e
+        Rails.logger.warn "Failed to load base_settings.yml: #{e.message}" if defined?(Rails) && Rails.logger
+        @base_settings = {}
+      end
+      
+      @base_settings.each {|k,h| h.reverse_merge!(default) } if @base_settings.is_a?(Hash)
+      @base_settings ||= {}
     end
 
     class SyncField < Struct.new :id, :name, :required, :synchronize, :ldap_attribute, :default_value

@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Redmine LDAP Sync.  If not, see <http://www.gnu.org/licenses/>.
 
-if RUBY_VERSION >= '2.0.0'
+if RUBY_VERSION >= '3.0.0'
   require 'simplecov'
 
   SimpleCov.start do
@@ -57,7 +57,11 @@ module ActionController::TestCase::Behavior
     process_unpatched(action, method, *args)
   end
 
-  if Rails::VERSION::MAJOR < 5
+  # Rails 6+ compatibility
+  if Rails::VERSION::MAJOR >= 6
+    alias_method :process_unpatched, :process
+    alias_method :process, :process_patched
+  elsif Rails::VERSION::MAJOR < 5
     alias_method :process_unpatched, :process
     alias_method :process, :process_patched
   end

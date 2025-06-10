@@ -27,6 +27,21 @@ __Remarks__:
 Installation & Upgrade
 ----------------------
 
+### Requirements
+
+- **Redmine 6.0+**
+- **Ruby 3.0+ (tested with Ruby 3.3.0)** 
+- **Rails 6.0+**
+- **Rake 7.0+**
+
+For older versions of Redmine (2.x-5.x), please use an earlier version of this plugin.
+
+The plugin has been specifically updated for Ruby 3.3.0 compatibility with improvements in:
+- Frozen string literal handling
+- YAML loading security enhancements  
+- String encoding operations
+- Enhanced error handling
+
 ### Install/Upgrade
 
 1. **install.** - Copy your plugin directory into `#{RAILS_ROOT}/plugins`.
@@ -50,7 +65,7 @@ Installation & Upgrade
 3. **upgrade** - Still on the redmine's directory, run the following command
    to upgrade your database (make a db backup before).
    ```
-   rake redmine:plugins:migrate RAILS_ENV=production
+   rake redmine:plugins:migrate RAILS_ENV=production NAME=redmine_ldap_sync
    ```
 
 4. Change into redmine's directory `#{RAILS_ROOT}` and run the following

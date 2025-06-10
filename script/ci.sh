@@ -15,14 +15,16 @@ setenv() {
   if [ ! "$VERBOSE" = "yes" ]; then export QUIET=--quiet; fi
 
   case $REDMINE in
-    2.*.*)  export PATH_TO_PLUGINS=./plugins # for redmine 2.x.x
-            export REDMINE_TARBALL=https://github.com/edavis10/redmine/archive/$REDMINE.tar.gz
+    6.*.*)  export PATH_TO_PLUGINS=./plugins # for redmine 6.x.x
+            export REDMINE_TARBALL=https://github.com/redmine/redmine/archive/$REDMINE.tar.gz
             ;;
-    *.*-stable) export PATH_TO_PLUGINS=./plugins # for redmine 2.x-stable
-            export REDMINE_SVN_REPO=http://svn.redmine.org/redmine/branches/$REDMINE
+    *.*-stable) export PATH_TO_PLUGINS=./plugins # for redmine stable branches
+            export REDMINE_GIT_REPO=https://github.com/redmine/redmine.git
+            export REDMINE_GIT_TAG=$REDMINE
             ;;
     master) export PATH_TO_PLUGINS=./plugins
-            export REDMINE_SVN_REPO=http://svn.redmine.org/redmine/trunk/
+            export REDMINE_GIT_REPO=https://github.com/redmine/redmine.git
+            export REDMINE_GIT_TAG=master
             ;;
     *)      echo "Unsupported platform $REDMINE"
             exit 1

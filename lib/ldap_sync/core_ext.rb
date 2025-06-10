@@ -15,4 +15,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Redmine LDAP Sync.  If not, see <http://www.gnu.org/licenses/>.
-Dir[File.dirname(__FILE__) + "/core_ext/*.rb"].each { |file| require(file) }
+
+# Load all core extension files
+core_ext_dir = File.dirname(__FILE__) + "/core_ext"
+Dir[File.join(core_ext_dir, "*.rb")].each { |file| require file }

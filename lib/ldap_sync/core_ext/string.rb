@@ -15,16 +15,26 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Redmine LDAP Sync.  If not, see <http://www.gnu.org/licenses/>.
-require 'net/ldap'
 
-module Net::BER::Extensions::String
-  if Gem.loaded_specs['net-ldap'].version < Gem::Version.new('0.12.0')
-    def raw_utf8_encoded
-      if self.respond_to?(:encode) && self.encoding.name != 'ASCII-8BIT'
-        self.encode('UTF-8').force_encoding('ASCII-8BIT')
-      else
-        self
+begin
+  require 'net/ldap'
+
+  module Net::BER::Extensions::String
+    # Ruby 3.3.0 compatibility - Check if net-ldap gem is available before version check
+    if defined?(Gem.loaded_specs) && 
+       Gem.loaded_specs['net-ldap'] && 
+       Gem.loaded_specs['net-ldap'].version < Gem::Version.new('0.12.0')
+      def raw_utf8_encoded
+        if self.respond_to?(:encode) && self.encoding.name != 'ASCII-8BIT'
+          # Create a duplicate to avoid frozen string errors in Ruby 3.3
+          result = self.dup
+          result.encode('UTF-8').force_encoding('ASCII-8BIT')
+        else
+          self.dup
+        end
       end
     end
   end
+rescue LoadError
+  # net-ldap gem not available during initialization - this is OK
 end

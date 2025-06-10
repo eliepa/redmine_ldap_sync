@@ -15,10 +15,19 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Redmine LDAP Sync.  If not, see <http://www.gnu.org/licenses/>.
-require 'net/ldap'
 
-class Net::LDAP
-  if Gem.loaded_specs['net-ldap'].version < Gem::Version.new('0.12.0')
-    Error = LdapError
+begin
+  require 'net/ldap'
+
+  class Net::LDAP
+    # Ruby 3.3.0 compatibility - Check if gem is available before version check
+    if defined?(Gem.loaded_specs) && 
+       Gem.loaded_specs['net-ldap'] && 
+       Gem.loaded_specs['net-ldap'].version < Gem::Version.new('0.12.0')
+      Error = LdapError
+    end
   end
+rescue LoadError
+  # net-ldap gem not available during initialization - this is OK
+  # The gem will be loaded when actually needed
 end

@@ -15,11 +15,15 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Redmine LDAP Sync.  If not, see <http://www.gnu.org/licenses/>.
-if ('0.12.0'..'0.13.0') === Gem.loaded_specs['net-ldap'].version.to_s
+# Ruby 3.3.0 compatibility - Check if net-ldap gem version requires this fix
+if defined?(Gem.loaded_specs) && 
+   Gem.loaded_specs['net-ldap'] && 
+   ('0.12.0'..'0.13.0').cover?(Gem.loaded_specs['net-ldap'].version.to_s)
   require 'net/ber'
 
   ##
   # A String object with a BER identifier attached.
+  # Updated for Ruby 3.3.0 compatibility
   #
   class Net::BER::BerIdentifiedString < String
     attr_accessor :ber_identifier
@@ -53,10 +57,20 @@ if ('0.12.0'..'0.13.0') === Gem.loaded_specs['net-ldap'].version.to_s
       # Check the encoding of the newly created String and set the encoding
       # to 'UTF-8' (NOTE: we do NOT change the bytes, but only set the
       # encoding to 'UTF-8').
+      # Ruby 3.3.0: Handle frozen strings more carefully
       current_encoding = encoding
       if current_encoding == Encoding::BINARY
-        force_encoding('UTF-8')
-        force_encoding(current_encoding) unless valid_encoding?
+        begin
+          force_encoding('UTF-8')
+          force_encoding(current_encoding) unless valid_encoding?
+        rescue FrozenError
+          # Handle frozen string in Ruby 3.3+
+          if frozen?
+            Rails.logger.warn "Cannot modify frozen string in BerIdentifiedString" if defined?(Rails) && Rails.logger
+          else
+            raise
+          end
+        end
       end
     end
   end

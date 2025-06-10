@@ -23,9 +23,8 @@ class LdapSettingsController < ApplicationController
   before_action :find_ldap_setting, :only => [:show, :edit, :update, :test, :enable, :disable]
   before_action :update_ldap_setting_from_params, :only => [:edit, :update, :test]
 
-  if respond_to? :skip_before_action
-    skip_before_action :verify_authenticity_token, :if => :js_request?
-  end
+  # Skip CSRF token verification for AJAX requests in modern Rails
+  protect_from_forgery except: :base_settings, if: :js_request?
 
   # GET /ldap_settings
   def index

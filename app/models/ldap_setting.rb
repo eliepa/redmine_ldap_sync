@@ -350,8 +350,9 @@ class LdapSetting
     end
 
     def strip_names
-      LDAP_ATTRIBUTES.each {|a| @attributes[a].strip! unless @attributes[a].nil? }
-      CLASS_NAMES.each {|a| @attributes[a].strip! unless @attributes[a].nil? }
+      # Ruby 3.3.0 compatibility: Use strip instead of strip! to avoid frozen string errors
+      LDAP_ATTRIBUTES.each {|a| @attributes[a] = @attributes[a].strip unless @attributes[a].nil? }
+      CLASS_NAMES.each {|a| @attributes[a] = @attributes[a].strip unless @attributes[a].nil? }
     end
 
     def attributes

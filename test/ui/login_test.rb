@@ -17,7 +17,7 @@
 # along with Redmine LDAP Sync.  If not, see <http://www.gnu.org/licenses/>.
 require File.expand_path('../base', __FILE__)
 
-if RUBY_VERSION >= '2.0.0'
+if RUBY_VERSION >= '3.0.0'
   require 'simplecov'
   SimpleCov.command_name 'UI Tests'
 end

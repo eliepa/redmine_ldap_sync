@@ -18,7 +18,7 @@
 require File.expand_path('../../test_helper', __FILE__)
 require 'capybara/rails'
 
-Capybara.default_driver = :selenium
+Capybara.default_driver = :selenium_chrome_headless
 Capybara.register_driver :selenium do |app|
   # Use the following driver definition to test locally using Chrome
   # (also requires chromedriver to be in PATH)
@@ -33,15 +33,20 @@ Capybara.register_driver :selenium do |app|
   Capybara::Selenium::Driver.new(app, browser: :remote, desired_capabilities: Selenium::WebDriver::Remote::Capabilities.phantomjs)
 end
 
-Capybara.register_driver :chrome_headless do |app|
-  capabilities = Selenium::WebDriver::Remote::Capabilities.chrome(
-    chromeOptions: { args: %w(headless disable-popup-blocking no-sandbox disable-gpu window-size=1024,900 lang=en) }
-  )
-  Capybara::Selenium::Driver.new(app, browser: :chrome, desired_capabilities: capabilities )
+Capybara.register_driver :selenium_chrome_headless do |app|
+  options = Selenium::WebDriver::Chrome::Options.new
+  options.add_argument('--headless')
+  options.add_argument('--disable-popup-blocking')
+  options.add_argument('--no-sandbox')
+  options.add_argument('--disable-gpu')
+  options.add_argument('--window-size=1024,900')
+  options.add_argument('--lang=en')
+
+  Capybara::Selenium::Driver.new(app, browser: :chrome, options: options)
 end
 
-# default: 2
-Capybara.default_wait_time = 2
+# default: 5 seconds for modern systems
+Capybara.default_max_wait_time = 5
 
 module Redmine
   module UiTest
