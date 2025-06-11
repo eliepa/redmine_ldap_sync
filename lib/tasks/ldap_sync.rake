@@ -17,6 +17,16 @@
 # along with Redmine LDAP Sync.  If not, see <http://www.gnu.org/licenses/>.
 
 # Define namespace and tasks for Rake 7+ compatibility
+require 'rake'
+require File.expand_path("#{Rails.root}/config/environment")
+require Rails.root.join('app/models/application_record.rb')  # Load base model first
+require Rails.root.join('app/models/auth_source.rb')        # Load base class first
+require Rails.root.join('app/models/auth_source_ldap.rb')   # Then the subclass
+require_relative '../ldap_sync/entity_manager'
+require_relative '../ldap_sync/infectors/auth_source_ldap'
+
+AuthSourceLdap.include LdapSync::Infectors::AuthSourceLdap unless AuthSourceLdap < LdapSync::Infectors::AuthSourceLdap
+
 namespace :redmine do
   namespace :plugins do
     namespace :ldap_sync do

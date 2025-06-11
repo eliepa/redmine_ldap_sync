@@ -16,26 +16,36 @@
 # You should have received a copy of the GNU General Public License
 # along with Redmine LDAP Sync.  If not, see <http://www.gnu.org/licenses/>.
 
-# Compatibility layer for different Rails versions
-if Rails::VERSION::MAJOR >= 6
-  # Rails 6+ already has versioned migrations
-elsif Rails::VERSION::MAJOR >= 5
-  # Rails 5+ has versioned migrations but might need this compatibility
-  class ActiveRecord::Migration
-    unless defined? self.[]
-      # Enables the use of versioned migrations on rails < 6
-      def self.[](version)
-        self
-      end
-    end
-  end
-else
-  # Rails 4.2 compatibility
-  class ActiveRecord::Migration
-    unless defined? self.[]
-      # Enables the use of versioned migrations on rails < 5
-      def self.[](version)
-        self
+
+module LdapSync
+  module CoreExt
+    module Migration
+      begin
+        
+        # Compatibility layer for different Rails versions
+        if Rails::VERSION::MAJOR >= 6
+          # Rails 6+ already has versioned migrations
+        elsif Rails::VERSION::MAJOR >= 5
+          # Rails 5+ has versioned migrations but might need this compatibility
+          class ActiveRecord::Migration
+            unless defined? self.[]
+              # Enables the use of versioned migrations on rails < 6
+              def self.[](version)
+                self
+              end
+            end
+          end
+        else
+          # Rails 4.2 compatibility
+          class ActiveRecord::Migration
+            unless defined? self.[]
+              # Enables the use of versioned migrations on rails < 5
+              def self.[](version)
+                self
+              end
+            end
+          end
+        end
       end
     end
   end

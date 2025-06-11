@@ -15,6 +15,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Redmine LDAP Sync.  If not, see <http://www.gnu.org/licenses/>.
+module LdapSync; end
 module LdapSync::EntityManager
 
   public
@@ -92,19 +93,22 @@ module LdapSync::EntityManager
           changes[:enabled] += find_all_users(ldap, n(:login)).map(&:first)
         else
           find_all_users(ldap, ns(:login, :account_flags)) do |entry|
-            if account_locked?(entry[n(:account_flags)].first)
-              changes[:locked] << entry[n(:login)].first
+            login = entry[n(:login)]&.first
+            next unless login # skip if login is nil
+          
+            if account_locked?(entry[n(:account_flags)]&.first)
+              changes[:locked] << login
             else
-              changes[:enabled] << entry[n(:login)].first
+              changes[:enabled] << login
             end
           end
         end
 
-        changes[:enabled].delete(nil)
-        changes[:locked].delete(nil)
+        #changes[:enabled].delete(nil)
+        #changes[:locked].delete(nil)
 
         users_on_local = self.users.active.map {|u| u.login.downcase }
-        users_on_ldap = changes.values.sum.map(&:downcase)
+        users_on_ldap = changes.values.flat_map(&:to_a).map(&:downcase)
         deleted_users = users_on_local - users_on_ldap
         changes[:deleted] = deleted_users
 

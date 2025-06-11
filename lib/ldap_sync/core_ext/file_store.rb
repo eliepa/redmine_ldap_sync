@@ -15,12 +15,22 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Redmine LDAP Sync.  If not, see <http://www.gnu.org/licenses/>.
-class ActiveSupport::Cache::FileStore
-  def delete_unless
-    options = merged_options(options)
-    search_dir(cache_path) do |path|
-      key = file_path_key(path)
-      delete_entry(key, options) unless yield(key)
+module LdapSync
+  module CoreExt
+    module FileStore
+      module Patch
+        def delete_unless
+          options = merged_options(options)
+          search_dir(cache_path) do |path|
+            key = file_path_key(path)
+            delete_entry(key, options) unless yield(key)
+          end
+        end
+      end
     end
   end
 end
+
+# Reopen the actual Rails class and include the patch
+ActiveSupport::Cache::FileStore.prepend(LdapSync::CoreExt::FileStore::Patch)
+

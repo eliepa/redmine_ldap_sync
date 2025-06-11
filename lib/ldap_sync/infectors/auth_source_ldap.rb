@@ -15,8 +15,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Redmine LDAP Sync.  If not, see <http://www.gnu.org/licenses/>.
-module LdapSync::Infectors::AuthSourceLdap
-
+module LdapSync
+  module Infectors
+    module AuthSourceLdap
+    
   module InstanceMethods
     include LdapSync::EntityManager
 
@@ -268,7 +270,7 @@ module LdapSync::Infectors::AuthSourceLdap
       end
 
       def find_local_user(username)
-        user = ::User.where("LOWER(#{User.table_name}.login) = ?", username.mb_chars.downcase).first
+        user = ::User.where("LOWER(#{::User.table_name}.login) = ?", username.mb_chars.downcase).first
         if user.present? && user.auth_source_id != self.id
           trace "-- Skipping user '#{user.login}': it already exists on a different auth_source"
           return nil, true
@@ -454,17 +456,20 @@ module LdapSync::Infectors::AuthSourceLdap
     end
   end
 
-  def self.included(receiver)
-    receiver.extend(ClassMethods)
-    receiver.send(:include, InstanceMethods)
+   def self.included(receiver)
+      receiver.extend(ClassMethods)
+      receiver.send(:include, InstanceMethods)
 
-    receiver.instance_eval do
-      delegate :has_fixed_group?, :fixed_group, :sync_on_login?, :to => :setting, :allow_nil => true
-      cattr_accessor :activate_users, :running_rake, :dyngroups_updated
-      cattr_accessor :trace_level do
-        :debug
+      receiver.instance_eval do
+        delegate :has_fixed_group?, :fixed_group, :sync_on_login?, to: :setting, allow_nil: true
+        cattr_accessor :activate_users, :running_rake, :dyngroups_updated
+        cattr_accessor :trace_level do
+          :debug
+        end
+        unloadable if respond_to?(:unloadable)
       end
-      unloadable
     end
-  end
 end
+end
+end
+

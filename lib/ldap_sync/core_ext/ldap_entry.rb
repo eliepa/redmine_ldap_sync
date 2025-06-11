@@ -15,10 +15,19 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Redmine LDAP Sync.  If not, see <http://www.gnu.org/licenses/>.
-require 'net/ldap'
 
-class Net::LDAP
-  class Entry
-    include Enumerable
+module LdapSync
+  module CoreExt
+    module LdapEntry
+      begin
+        require 'net/ldap'
+        
+        class Net::LDAP
+          class Entry
+            include Enumerable
+          end
+        end
+      end
+    end
   end
 end

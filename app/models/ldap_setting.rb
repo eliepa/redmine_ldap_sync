@@ -66,7 +66,11 @@ class LdapSetting
   safe_attributes *(LDAP_ATTRIBUTES + CLASS_NAMES + FLAGS + COMBOS + OTHERS)
   define_attribute_methods LDAP_ATTRIBUTES + CLASS_NAMES + FLAGS + COMBOS + OTHERS
 
-  [:login, *User::STANDARD_FIELDS].each {|f| module_eval("def #{f}; auth_source_ldap.attr_#{f}; end") }
+  STANDARD_USER_FIELDS = [:firstname, :lastname, :mail]
+
+  [:login, :firstname, :lastname, :mail].each do |f|
+    module_eval("def #{f}; auth_source_ldap.attr_#{f}; end")
+  end
 
   def id
     @auth_source_ldap_id
@@ -199,7 +203,7 @@ class LdapSetting
 
     self.auth_source_ldap = source
     @attributes.merge!(settings)
-    @user_standard_ldap_attrs = User::STANDARD_FIELDS.each_with_object({}) {|f, h| h[f] = (send(f)||'').downcase }
+    @user_standard_ldap_attrs = STANDARD_USER_FIELDS.each_with_object({}) {|f, h| h[f] = (send(f)||'').downcase }
   end
 
   def auth_source_ldap_id=(id)
@@ -300,7 +304,7 @@ class LdapSetting
     end
 
     def validate_user_fields_to_sync
-      validate_fields user_fields_to_sync, (User::STANDARD_FIELDS + UserCustomField.all), user_ldap_attrs
+      validate_fields user_fields_to_sync, (STANDARD_USER_FIELDS + UserCustomField.all), user_ldap_attrs
     end
 
     def validate_group_ldap_attrs
@@ -325,13 +329,18 @@ class LdapSetting
     end
 
     def validate_fields(fields_to_sync, fields, attrs)
-      fields_ids = fields.map {|f| f.is_a?(String) ? f : f.id.to_s }
+      fields_ids = fields.map do |f|
+        f.respond_to?(:id) ? f.id.to_s : f.to_s
+      end
+    
       if (fields_to_sync - fields_ids).present?
         errors.add :user_group_fields, :invalid unless errors.added? :user_group_fields, :invalid
       end
+    
       fields_to_sync.each do |f|
         if f =~ /\A\d+\z/ && attrs[f].blank?
-          field_name = fields.find {|c| !c.is_a?(String) && c.id.to_s == f }.name
+          field_obj = fields.find { |c| c.respond_to?(:id) && c.id.to_s == f }
+          field_name = field_obj ? field_obj.name : f
           errors.add :base, :must_have_ldap_attribute, :field => field_name
         end
       end
