@@ -181,8 +181,8 @@ class LdapSetting
   # Returns the user field name for the given ldap attribute
   def user_field(ldap_attr)
     ldap_attr = ldap_attr.to_s
-    result = @user_standard_ldap_attrs.find {|(k, v)| v.downcase == ldap_attr }.try(:first)
-    result ||= user_ldap_attrs.find {|(k, v)| v.downcase == ldap_attr }.try(:first)
+    result = @user_standard_ldap_attrs.find {|(k, v)| v.downcase == ldap_attr.downcase }.try(:first)
+    result ||= user_ldap_attrs.find {|(k, v)| v.downcase == ldap_attr.downcase }.try(:first)
   end
 
   def test
@@ -203,7 +203,7 @@ class LdapSetting
 
     self.auth_source_ldap = source
     @attributes.merge!(settings)
-    @user_standard_ldap_attrs = STANDARD_USER_FIELDS.each_with_object({}) {|f, h| h[f] = (send(f)||'').downcase }
+    @user_standard_ldap_attrs = STANDARD_USER_FIELDS.each_with_object({}) {|f, h| h[f] = send(f)||'' }
   end
 
   def auth_source_ldap_id=(id)
