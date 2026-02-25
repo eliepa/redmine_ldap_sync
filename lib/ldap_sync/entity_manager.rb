@@ -38,8 +38,8 @@ module LdapSync::EntityManager
 
       user_fields = user_data.inject({}) do |fields, (attr, value)|
         f = setting.user_field(attr)
-        if f && fields_to_sync.include?(f)
-          fields[f] = value.first unless value.nil? || value.first.blank?
+        if f && fields_to_sync.include?(f.to_s)
+          fields[f.to_s] = value.first unless value.nil? || value.first.blank?
         end
         fields
       end
